@@ -44,11 +44,11 @@ A modern, responsive website for Anoka Health Center, LLC, providing Adult Rehab
 For email functionality to work, you need to configure your email settings:
 
 1. Copy `.env.template` to `.env.local`
-2. Add your email credentials (see `EMAIL_SETUP.md` for detailed instructions)
+2. Add your email credentials (see `SETUP.md` for detailed instructions)
 3. For Gmail: Enable 2-factor authentication and generate an App Password
 4. Test the contact form and careers application form
 
-See `EMAIL_SETUP.md` for complete setup instructions.
+See `setup.md` for complete setup instructions.
 
 ## Project Structure
 
