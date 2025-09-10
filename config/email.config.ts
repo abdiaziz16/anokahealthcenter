@@ -52,14 +52,6 @@ REQUIRED Environment Variables (set in Netlify Dashboard or .env.local):
    - Update SMTP_HOST and SMTP_PORT accordingly
    - Use your email provider's SMTP settings
 
-3. Required Environment Variables:
-   EMAIL_USER=your-email@gmail.com
-   EMAIL_PASSWORD=your-app-password
-   CONTACT_EMAIL=contact@anokahealthcenter.com
-   CAREERS_EMAIL=careers@anokahealthcenter.com
-   FROM_EMAIL=noreply@anokahealthcenter.com
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=587
 
 Note: All environment variables are required. No fallback values are provided.
 */
