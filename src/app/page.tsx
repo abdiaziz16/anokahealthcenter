@@ -19,17 +19,17 @@ export default function Home() {
     setIsSubmitting(true);
 
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('form-name', 'contact');
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('email', formData.email);
-      formDataToSend.append('phone', formData.phone);
-      formDataToSend.append('message', formData.message);
+      const params = new URLSearchParams();
+      params.append('form-name', 'contact');
+      params.append('name', formData.name);
+      params.append('email', formData.email);
+      params.append('phone', formData.phone);
+      params.append('message', formData.message);
 
       const response = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(formDataToSend as any).toString(),
+        body: params.toString(),
       });
 
       if (response.ok) {
