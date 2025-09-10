@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Toast, { useToast } from '@/components/Toast';
 
 interface JobApplication {
@@ -13,7 +12,6 @@ interface JobApplication {
 }
 
 export default function Careers() {
-  const router = useRouter();
   const { toast, showToast, hideToast } = useToast();
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [formData, setFormData] = useState<JobApplication>({
