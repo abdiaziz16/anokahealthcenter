@@ -5,21 +5,11 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# Handle API routes - redirect to serverless functions
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
 # Handle client-side routing for Next.js
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-# Functions configuration
-[functions]
-  directory = ".netlify/functions"
 
 # Security headers
 [[headers]]

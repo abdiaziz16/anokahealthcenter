@@ -3,10 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   
-  // Enable experimental features for better Netlify compatibility
-  experimental: {
-    serverComponentsExternalPackages: ['nodemailer'],
-  },
+  // External packages for server components
+  serverExternalPackages: ['nodemailer'],
 };
 
 export default nextConfig;
