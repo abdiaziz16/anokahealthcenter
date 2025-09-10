@@ -1,45 +1,48 @@
 // Email Configuration
-// Add your email credentials here
+// All email settings are loaded from environment variables
+// No hardcoded values - all must be set in Netlify Dashboard or .env.local
 
 export const emailConfig = {
   // SMTP Configuration
   smtp: {
-    host: process.env.SMTP_HOST || 'smtp.gmail.com', // Gmail SMTP server
-    port: parseInt(process.env.SMTP_PORT || '587'),
+    host: process.env.SMTP_HOST!,
+    port: parseInt(process.env.SMTP_PORT!),
     secure: false, // true for 465, false for other ports
     auth: {
-      user: process.env.EMAIL_USER || 'your-email@gmail.com', // Your email
-      pass: process.env.EMAIL_PASSWORD || 'your-app-password', // Your app password
+      user: process.env.EMAIL_USER!,
+      pass: process.env.EMAIL_PASSWORD!,
     },
   },
   
   // Email addresses
   emails: {
     // Main contact email (where contact form submissions go)
-    contact: process.env.CONTACT_EMAIL || 'contact@anokahealthcenter.com',
+    contact: process.env.CONTACT_EMAIL!,
     
     // Careers email (where job applications go)
-    careers: process.env.CAREERS_EMAIL || 'careers@anokahealthcenter.com',
+    careers: process.env.CAREERS_EMAIL!,
     
     // From email (sender address)
-    from: process.env.FROM_EMAIL || 'noreply@anokahealthcenter.com',
+    from: process.env.FROM_EMAIL!,
   },
   
   // Email templates
   templates: {
     contact: {
       subject: 'New Contact Form Submission - Anoka Health Center',
-      replyTo: 'contact@anokahealthcenter.com',
+      replyTo: process.env.CONTACT_EMAIL!,
     },
     careers: {
       subject: 'New Job Application - Anoka Health Center',
-      replyTo: 'careers@anokahealthcenter.com',
+      replyTo: process.env.CAREERS_EMAIL!,
     },
   },
 };
 
 // Instructions for setup:
 /*
+REQUIRED Environment Variables (set in Netlify Dashboard or .env.local):
+
 1. For Gmail:
    - Enable 2-factor authentication
    - Generate an App Password: https://myaccount.google.com/apppasswords
@@ -49,7 +52,7 @@ export const emailConfig = {
    - Update SMTP_HOST and SMTP_PORT accordingly
    - Use your email provider's SMTP settings
 
-3. Environment Variables (.env.local):
+3. Required Environment Variables:
    EMAIL_USER=your-email@gmail.com
    EMAIL_PASSWORD=your-app-password
    CONTACT_EMAIL=contact@anokahealthcenter.com
@@ -57,4 +60,6 @@ export const emailConfig = {
    FROM_EMAIL=noreply@anokahealthcenter.com
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=587
+
+Note: All environment variables are required. No fallback values are provided.
 */
