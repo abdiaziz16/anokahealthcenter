@@ -58,18 +58,18 @@ export default function Careers() {
 
     try {
       const submitData = new FormData();
+      submitData.append('form-name', 'careers');
       submitData.append('name', formData.name);
       submitData.append('email', formData.email);
       submitData.append('phone', formData.phone);
       submitData.append('position', formData.position);
       submitData.append('resume', formData.resume);
 
-      const response = await fetch('/api/careers', {
+      const response = await fetch('/', {
         method: 'POST',
+        headers: { 'Content-Type': 'multipart/form-data' },
         body: submitData,
       });
-
-      const result = await response.json();
 
       if (response.ok) {
         showToast('Thank you for your application. We will review your submission and get back to you soon.', 'success');
@@ -83,7 +83,7 @@ export default function Careers() {
         setSelectedPosition(null);
         setError('');
       } else {
-        const errorMessage = result.error || 'Failed to submit application. Please try again.';
+        const errorMessage = 'Failed to submit application. Please try again.';
         setError(errorMessage);
         showToast(errorMessage, 'error');
       }
@@ -208,7 +208,8 @@ export default function Careers() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form name="careers" method="POST" data-netlify="true" encType="multipart/form-data" onSubmit={handleSubmit} className="space-y-6">
+              <input type="hidden" name="form-name" value="careers" />
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-white mb-1">
                   Full Name

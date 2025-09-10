@@ -19,21 +19,24 @@ export default function Home() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const formDataToSend = new FormData();
+      formDataToSend.append('form-name', 'contact');
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('phone', formData.phone);
+      formDataToSend.append('message', formData.message);
 
-      const result = await response.json();
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formDataToSend as any).toString(),
+      });
 
       if (response.ok) {
         showToast('Thank you for your message. We will get back to you soon.', 'success');
         setFormData({ name: '', email: '', phone: '', message: '' });
       } else {
-        showToast(`Error: ${result.error || 'Failed to send message. Please try again.'}`, 'error');
+        showToast('Failed to send message. Please try again.', 'error');
       }
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -377,7 +380,8 @@ export default function Home() {
             {/* Contact Form */}
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-800/50 hover:scale-105 hover:shadow-xl transition-all duration-300">
               <h3 className="text-2xl font-bold text-[#00799F] mb-6">Send Us a Message</h3>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form name="contact" method="POST" data-netlify="true" onSubmit={handleSubmit} className="space-y-6">
+                <input type="hidden" name="form-name" value="contact" />
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-white mb-1">
                     Name

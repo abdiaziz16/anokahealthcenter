@@ -51,6 +51,7 @@ const Navbar = () => {
                 className="hover:opacity-90 transition-opacity duration-300"
                 style={{ filter: 'none' }}
                 priority
+                unoptimized
               />
               <div className="ml-2 flex flex-col">
                 <span className="text-2xl font-bold text-white leading-none">ANOKA</span>
