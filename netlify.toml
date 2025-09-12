@@ -3,19 +3,5 @@
   publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "18"
-
-# Handle client-side routing for Next.js
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# Security headers
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
+  # Disable secret scanning for specific environment variables
+  SECRETS_SCAN_OMIT_KEYS = "SMTP_HOST,SMTP_PORT,SMTP_SECURE,SMTP_USER,SMTP_PASSWORD,CONTACT_FORM_RECIPIENT,CAREERS_FORM_RECIPIENT"

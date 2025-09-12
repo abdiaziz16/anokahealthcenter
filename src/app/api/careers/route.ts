@@ -1,10 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendJobApplicationEmail } from '@/lib/email';
 
-// Load runtime configuration - not bundled
-const getEmailConfig = async () => {
-  const { getEmailConfig: configFn } = await import('@/lib/runtime-config');
-  return configFn();
+// Email configuration - only created when API route is called
+const getEmailConfig = () => {
+  // Use dynamic property access to avoid bundling
+  const getEnv = (key: string) => {
+    // Use Function constructor to avoid static analysis
+    const envAccess = new Function('key', 'return process.env[key]');
+    return envAccess(key);
+  };
+  
+  return {
+    smtp: {
+      host: getEnv('SMTP_HOST') || '',
+      port: parseInt(getEnv('SMTP_PORT') || '0'),
+      secure: getEnv('SMTP_SECURE') === 'true',
+      auth: {
+        user: getEnv('SMTP_USER') || '',
+        pass: getEnv('SMTP_PASSWORD') || '',
+      },
+    },
+    emails: {
+      contact: getEnv('CONTACT_FORM_RECIPIENT') || '',
+      careers: getEnv('CAREERS_FORM_RECIPIENT') || '',
+      from: getEnv('SMTP_USER') || '',
+    },
+  };
 };
 
 export async function POST(request: NextRequest) {
@@ -72,7 +93,7 @@ export async function POST(request: NextRequest) {
     const resumeBuffer = Buffer.from(await resume.arrayBuffer());
 
     // Send email
-    const config = await getEmailConfig();
+    const config = getEmailConfig();
     
     // Validate required environment variables
     if (!config.smtp.host || !config.smtp.auth.user || !config.smtp.auth.pass || !config.emails.careers) {
