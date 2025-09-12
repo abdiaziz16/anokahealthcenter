@@ -1,40 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendContactEmail } from '@/lib/email';
 
-// Email configuration - only created when API route is called
-const getEmailConfig = () => {
-  // Use dynamic property construction to avoid secret detection
-  const env = process.env;
-  
-  // Build keys dynamically to avoid string literals in bundle
-  const keyParts = {
-    smtp: ['SMTP', 'HOST'],
-    port: ['SMTP', 'PORT'],
-    secure: ['SMTP', 'SECURE'],
-    user: ['SMTP', 'USER'],
-    pass: ['SMTP', 'PASSWORD'],
-    contact: ['CONTACT', 'FORM', 'RECIPIENT'],
-    careers: ['CAREERS', 'FORM', 'RECIPIENT']
-  };
-
-  const buildKey = (parts: string[]) => parts.join('_');
-  
-  return {
-    smtp: {
-      host: env[buildKey(keyParts.smtp)] || 'smtp.gmail.com',
-      port: parseInt(env[buildKey(keyParts.port)] || '587'),
-      secure: env[buildKey(keyParts.secure)] === 'true',
-      auth: {
-        user: env[buildKey(keyParts.user)] || '',
-        pass: env[buildKey(keyParts.pass)] || '',
-      },
-    },
-    emails: {
-      contact: env[buildKey(keyParts.contact)] || '',
-      careers: env[buildKey(keyParts.careers)] || '',
-      from: env[buildKey(keyParts.user)] || '',
-    },
-  };
+// Load runtime configuration - not bundled
+const getEmailConfig = async () => {
+  const { getEmailConfig: configFn } = await import('@/lib/runtime-config');
+  return configFn();
 };
 
 export async function POST(request: NextRequest) {
@@ -61,7 +31,17 @@ export async function POST(request: NextRequest) {
 
     // Send email
     try {
-      const config = getEmailConfig();
+      const config = await getEmailConfig();
+      
+      // Validate required environment variables
+      if (!config.smtp.host || !config.smtp.auth.user || !config.smtp.auth.pass || !config.emails.contact) {
+        console.error('Missing required environment variables');
+        return NextResponse.json(
+          { error: 'Email configuration is incomplete' },
+          { status: 500 }
+        );
+      }
+      
       console.log('Contact form config:', {
         host: config.smtp.host,
         port: config.smtp.port,
