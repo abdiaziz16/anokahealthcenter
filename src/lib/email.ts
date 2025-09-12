@@ -1,8 +1,25 @@
 import * as nodemailer from 'nodemailer';
-import { emailConfig } from '../../config/email.config';
 
-// Create reusable transporter object using the default SMTP transport
-const transporter = nodemailer.createTransport(emailConfig.smtp);
+// Email configuration - only used on server side
+const getEmailConfig = () => ({
+  smtp: {
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER!,
+      pass: process.env.SMTP_PASSWORD!,
+    },
+  },
+  emails: {
+    contact: process.env.CONTACT_FORM_RECIPIENT!,
+    careers: process.env.CAREERS_FORM_RECIPIENT!,
+    from: process.env.SMTP_USER!,
+  },
+});
+
+// Create transporter function to avoid loading env vars at module load time
+const getTransporter = () => nodemailer.createTransport(getEmailConfig().smtp);
 
 export interface ContactFormData {
   name: string;
@@ -22,11 +39,12 @@ export interface JobApplicationData {
 // Send contact form email
 export async function sendContactEmail(formData: ContactFormData): Promise<boolean> {
   try {
+    const config = getEmailConfig();
     const mailOptions = {
-      from: emailConfig.emails.from,
-      to: emailConfig.emails.contact,
+      from: config.emails.from,
+      to: config.emails.contact,
       replyTo: formData.email,
-      subject: emailConfig.templates.contact.subject,
+      subject: 'New Contact Form Submission - Anoka Health Center',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #00799F;">New Contact Form Submission</h2>
@@ -45,7 +63,7 @@ export async function sendContactEmail(formData: ContactFormData): Promise<boole
       `,
     };
 
-    await transporter.sendMail(mailOptions);
+    await getTransporter().sendMail(mailOptions);
     return true;
   } catch (error) {
     console.error('Error sending contact email:', error);
@@ -56,11 +74,12 @@ export async function sendContactEmail(formData: ContactFormData): Promise<boole
 // Send job application email
 export async function sendJobApplicationEmail(formData: JobApplicationData, resumeBuffer: Buffer): Promise<boolean> {
   try {
+    const config = getEmailConfig();
     const mailOptions = {
-      from: emailConfig.emails.from,
-      to: emailConfig.emails.careers,
+      from: config.emails.from,
+      to: config.emails.careers,
       replyTo: formData.email,
-      subject: `${emailConfig.templates.careers.subject} - ${formData.position}`,
+      subject: `New Job Application - Anoka Health Center - ${formData.position}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #00799F;">New Job Application</h2>
@@ -83,7 +102,7 @@ export async function sendJobApplicationEmail(formData: JobApplicationData, resu
       ],
     };
 
-    await transporter.sendMail(mailOptions);
+    await getTransporter().sendMail(mailOptions);
     return true;
   } catch (error) {
     console.error('Error sending job application email:', error);
@@ -94,7 +113,7 @@ export async function sendJobApplicationEmail(formData: JobApplicationData, resu
 // Test email configuration
 export async function testEmailConfiguration(): Promise<boolean> {
   try {
-    await transporter.verify();
+    await getTransporter().verify();
     console.log('Email configuration is valid');
     return true;
   } catch (error) {
