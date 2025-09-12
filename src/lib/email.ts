@@ -1,25 +1,25 @@
 import * as nodemailer from 'nodemailer';
 
-// Email configuration - only used on server side
-const getEmailConfig = () => ({
+// Email configuration interface
+interface EmailConfig {
   smtp: {
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true',
+    host: string;
+    port: number;
+    secure: boolean;
     auth: {
-      user: process.env.SMTP_USER!,
-      pass: process.env.SMTP_PASSWORD!,
-    },
-  },
+      user: string;
+      pass: string;
+    };
+  };
   emails: {
-    contact: process.env.CONTACT_FORM_RECIPIENT!,
-    careers: process.env.CAREERS_FORM_RECIPIENT!,
-    from: process.env.SMTP_USER!,
-  },
-});
+    contact: string;
+    careers: string;
+    from: string;
+  };
+}
 
-// Create transporter function to avoid loading env vars at module load time
-const getTransporter = () => nodemailer.createTransport(getEmailConfig().smtp);
+// Create transporter function - configuration passed as parameter
+const createTransporter = (config: EmailConfig) => nodemailer.createTransport(config.smtp);
 
 export interface ContactFormData {
   name: string;
@@ -37,9 +37,9 @@ export interface JobApplicationData {
 }
 
 // Send contact form email
-export async function sendContactEmail(formData: ContactFormData): Promise<boolean> {
+export async function sendContactEmail(formData: ContactFormData, config: EmailConfig): Promise<boolean> {
   try {
-    const config = getEmailConfig();
+    const transporter = createTransporter(config);
     const mailOptions = {
       from: config.emails.from,
       to: config.emails.contact,
@@ -63,7 +63,7 @@ export async function sendContactEmail(formData: ContactFormData): Promise<boole
       `,
     };
 
-    await getTransporter().sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
     return true;
   } catch (error) {
     console.error('Error sending contact email:', error);
@@ -72,9 +72,9 @@ export async function sendContactEmail(formData: ContactFormData): Promise<boole
 }
 
 // Send job application email
-export async function sendJobApplicationEmail(formData: JobApplicationData, resumeBuffer: Buffer): Promise<boolean> {
+export async function sendJobApplicationEmail(formData: JobApplicationData, resumeBuffer: Buffer, config: EmailConfig): Promise<boolean> {
   try {
-    const config = getEmailConfig();
+    const transporter = createTransporter(config);
     const mailOptions = {
       from: config.emails.from,
       to: config.emails.careers,
@@ -102,7 +102,7 @@ export async function sendJobApplicationEmail(formData: JobApplicationData, resu
       ],
     };
 
-    await getTransporter().sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
     return true;
   } catch (error) {
     console.error('Error sending job application email:', error);
@@ -111,9 +111,10 @@ export async function sendJobApplicationEmail(formData: JobApplicationData, resu
 }
 
 // Test email configuration
-export async function testEmailConfiguration(): Promise<boolean> {
+export async function testEmailConfiguration(config: EmailConfig): Promise<boolean> {
   try {
-    await getTransporter().verify();
+    const transporter = createTransporter(config);
+    await transporter.verify();
     console.log('Email configuration is valid');
     return true;
   } catch (error) {

@@ -1,6 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendJobApplicationEmail } from '@/lib/email';
 
+// Email configuration - only created when API route is called
+const getEmailConfig = () => ({
+  smtp: {
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER!,
+      pass: process.env.SMTP_PASSWORD!,
+    },
+  },
+  emails: {
+    contact: process.env.CONTACT_FORM_RECIPIENT!,
+    careers: process.env.CAREERS_FORM_RECIPIENT!,
+    from: process.env.SMTP_USER!,
+  },
+});
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -66,13 +84,14 @@ export async function POST(request: NextRequest) {
     const resumeBuffer = Buffer.from(await resume.arrayBuffer());
 
     // Send email
+    const config = getEmailConfig();
     const success = await sendJobApplicationEmail({
       name,
       email,
       phone,
       position,
       resume,
-    }, resumeBuffer);
+    }, resumeBuffer, config);
 
     if (success) {
       return NextResponse.json(
